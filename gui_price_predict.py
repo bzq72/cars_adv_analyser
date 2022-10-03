@@ -16,7 +16,7 @@ class Gui():
         self.autoDB = DB(database)
         
         """Window setup"""
-        win.geometry("880x680")
+        win.geometry("720x480")
         win.resizable(0, 0)
         win.title("AutoStatsCreator - Price prediction")
         
@@ -126,8 +126,6 @@ class Gui():
         self.pred_frame.grid(row = 2, column = 2)
 
         tk.Button(buttonFrame, text = "Check price", command = lambda: self.getFilter()).grid(row = 0, column = 0,ipadx = 10)
-        tk.Button(buttonFrame,text="Reset",command=lambda: self.cleanTable()).grid(row=0, column = 1,ipadx = 10)
-        tk.Button(buttonFrame, text='Complete categories', command = lambda: self.autoDB.complCatFunc()).grid(row=0, column = 2,ipadx = 10)
         tk.Button(self.win, text='Check models', command = lambda: self.filterModelsByBrand()).grid(row=0, column = 3)
         
     
@@ -138,20 +136,18 @@ class Gui():
         self.getModelsDB = self.autoDB.current_db[self.autoDB.current_db['brand'].isin(self.filterBrand)]
         for el in sorted(self.getModelsDB['model'].unique().tolist()): self.modelListBox.insert(END, el)
                 
-    def filterAutos(self):
-        """filtering datas based on values from filters"""
+    def filterAutos(self, minimal = 100):
+        """filtering datas based on values from filters, trying to keep minimal number of observations"""
         self.autosDBF = self.autoDB.current_db
         self.autosDBF = self.autosDBF[(self.autosDBF.brand.isin(self.filterBrand))
                             & (self.autosDBF.model.isin(self.filterModel))
                             & (self.autosDBF.yearOfRegistration >= self.prodYearFilter - 1) 
                                 & (self.autosDBF.yearOfRegistration <= self.prodYearFilter + 1)]
-                
-        
-        if len(dbf_try := self.autosDBF[self.autosDBF.gearbox == self.gearboxFilter]) >= 100:
+        if len(dbf_try := self.autosDBF[self.autosDBF.gearbox == self.gearboxFilter]) >= minimal:
             self.autosDBF = dbf_try
-        if len(dbf_try := self.autosDBF[self.autosDBF.fuelType == self.fuelTypeFilter]) >= 100:
+        if len(dbf_try := self.autosDBF[self.autosDBF.fuelType == self.fuelTypeFilter]) >= minimal:
             self.autosDBF = dbf_try
-        if len(dbf_try := self.autosDBF[self.autosDBF.vehicleType.isin(self.filterVehType)]) >= 100:
+        if len(dbf_try := self.autosDBF[self.autosDBF.vehicleType.isin(self.filterVehType)]) >= minimal:
             self.autosDBF = dbf_try
         
     def getModel(self):
@@ -182,8 +178,6 @@ class Gui():
         self.getModel()
         self.getParams()
         self.filterAutos()
-        print(self.filterBrand, self.filterModel, self.filterVehType, self.gearboxFilter, self.fuelTypeFilter
-              , self.kmStandFilter, self.prodYearFilter, self.powerPSFilter)
         self.make_prediction()
     
     def getParams(self):
@@ -192,10 +186,10 @@ class Gui():
         self.fuelTypeFilter = self.fuelTypeComboBox.get()
         self.kmStandFilter = int(self.kmStandEntry.get())
         self.powerPSFilter = int(self.powerPSEntry.get())
-
         self.prodYearFilter = int(self.prodYearComboBox.get())
 
     def transform_series(self):
+        """transforming column kilometer and powerPS to boolean/categorical columns"""
         data_to_predict = {self.filterBrand[0]:[1], self.filterModel[0]:[1], self.filterVehType[0]:[1], self.gearboxFilter:[1]
                            , self.fuelTypeFilter:[1], float(self.prodYearFilter):[1],"powerPS": [int(self.powerPSFilter)]
                            , 'kilometer':[int(self.kmStandFilter)], 'nein':1}
@@ -208,38 +202,38 @@ class Gui():
 
         
     def make_prediction(self):
-        #dbooo = "./cars_selling.csv"
+        """preparing and making to prediction"""
         current_dbooo = self.autosDBF
-        print("*************************")
-        #print(current_dbooo.describe())
-        #print(current_dbooo.info())
-
-        #current_dbooo = current_dbooo[:100000]
         self.predicton_model = Model_pre(current_dbooo)
         self.predicton_model.prepare_datebase()
         self.predict_from_filter()
 
     def predict_from_filter(self):
-        
+        """predicit and show car price"""
         self.predicton_model.t_db = self.predicton_model.t_db.append(self.transform_series(), ignore_index=True)
         to_predict = self.predicton_model.t_db.tail(1).fillna(0).drop(columns = ["price"])
+        self.pred_price = int(self.predicton_model.predict_by_best_model(to_predict=to_predict)[0])
+        self.show_stats()
         
-        pred_price = int(self.predicton_model.predict_by_best_model(to_predict=to_predict)[0])
-        self.predicton_model.show_sampler()
-        print(self.predicton_model.y_test.describe())
-        
+    def show_stats(self):
         self.pred_frame.destroy()
         self.pred_frame = tk.Frame(self.win)
+        
         tk.Label(self.pred_frame, text = "Your car is worth: ").pack(side = 'top')
-        tk.Label(self.pred_frame, text = f"{pred_price} Euro" ).pack(side = 'top')
+        tk.Label(self.pred_frame, text = f"{self.pred_price} Euro" ).pack(side = 'top')
+        tk.Label(self.pred_frame, text = "Cars similar to yours are worth:").pack(side = 'top')
+        tk.Label(self.pred_frame, text = f"Min. {int(self.predicton_model.y.min())} Euro" ).pack(side = 'top')
+        tk.Label(self.pred_frame, text = f"Max.: {int(self.predicton_model.y.max())} Euro" ).pack(side = 'top')
+        tk.Label(self.pred_frame, text = f"Mean: {int(self.predicton_model.y.mean())} Euro" ).pack(side = 'top')
+        tk.Label(self.pred_frame, text = f"Median: {int(self.predicton_model.y.median())} Euro" ).pack(side = 'top')
+        
         self.pred_frame.grid(row = 2, column = 2)
         
+    def save_db_to_excel(self):
+        """saving filtered adverts in transformed db into .xlsx"""
         self.predicton_model.t_db.to_excel("output.xlsx")  
 
-        #print(self.predicton_model.t_db.columns.tolist())
-        #print(self.predicton_model.reg.predict(_db))
-
-              
+      
     def statsFiltersAdv(self):
         ### count autos by Brand
         newDBFStatsBrand = self.autosDBF[['brand']].copy().dropna()
@@ -262,14 +256,7 @@ class Gui():
         newDBFStatsVehType.drop(newDBFStatsVehType[newDBFStatsVehType.index1 == 0 ].index, inplace= True)
         #print(str(newDBFStatsVehType))
         
-        
-        
-#database = "./cars_selling_sh.csv"
-
-#current_db = databaseorganistor.DB(database)
-
 win = tk.Tk()
 ourGui = Gui(win)
 win.mainloop()
 
-#406
