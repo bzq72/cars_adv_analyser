@@ -1,11 +1,16 @@
+from operator import truediv
+from os import truncate
 from pandas_profiling import ProfileReport
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, f1_score
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
 import numpy as np
-
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
+from sklearn.neighbors import KNeighborsRegressor
 
 class Model_pre:
     def __init__(self, db):
@@ -85,56 +90,24 @@ class Model_pre:
         """transforming column powerPS to boolean/categorical columns"""
 
         print("transform_c_powerPS processing...")
-        new_columns = ["under_50_PS", "50_75_PS","75_90_PS","90_100_PS","100_110_PS","110_120_PS","120_130_PS","130_140_PS","140_150_PS"
-                       ,"150_160_PS","160_170_PS","170_180_PS","180_190_PS","190_200_PS","200_225_PS","225_250_PS","250_275_PS"
-                       , "275_300_PS","275_300_PS","300_350_PS","350_400_PS","above_400_PS"]
+        new_columns = ["under_50_PS", "under_75_PS","under_100_PS","under_125_PS","under_150_PS","under_175_PS","under_200_PS","under_250_PS","under_300_PS"
+                       ,"under_400_PS","above_400_PS"]
         
         for column in new_columns: date_base[column] = 0 
         for k in date_base.index:
             row =date_base.iloc[k]
-            if int(row["powerPS"]) < 50: 
-                date_base._set_value(k, "under_50_PS", 1)
-            elif (int(row["powerPS"]) >= 50) & (int(row["powerPS"]) < 75): 
-                date_base._set_value(k, "50_75_PS", 1)
-            elif (int(row["powerPS"]) >= 75) & (int(row["powerPS"]) < 90): 
-                date_base._set_value(k, "75_90_PS", 1)
-            elif (int(row["powerPS"]) >= 90) & (int(row["powerPS"]) < 100): 
-                date_base._set_value(k, "90_100_PS", 1)
-            elif (int(row["powerPS"]) >= 100) & (int(row["powerPS"]) < 110): 
-                date_base._set_value(k, "100_110_PS", 1)
-            elif (int(row["powerPS"]) >= 110) & (int(row["powerPS"]) < 120): 
-                date_base._set_value(k, "110_120_PS", 1)
-            elif (int(row["powerPS"]) >= 120) & (int(row["powerPS"]) < 130): 
-                date_base._set_value(k, "120_130_PS", 1)
-            elif (int(row["powerPS"]) >= 130) & (int(row["powerPS"]) < 140): 
-                date_base._set_value(k, "130_140_PS", 1)
-            elif (int(row["powerPS"]) >= 140) & (int(row["powerPS"]) < 150): 
-                date_base._set_value(k, "140_150_PS", 1)
-            elif (int(row["powerPS"]) >= 150) & (int(row["powerPS"]) < 160): 
-                date_base._set_value(k, "150_160_PS", 1)
-            elif (int(row["powerPS"]) >= 160) & (int(row["powerPS"]) < 170): 
-                date_base._set_value(k, "160_170_PS", 1)
-            elif (int(row["powerPS"]) >= 170) & (int(row["powerPS"]) < 180): 
-                date_base._set_value(k, "170_180_PS", 1)
-            elif (int(row["powerPS"]) >= 180) & (int(row["powerPS"]) < 190): 
-                date_base._set_value(k, "180_190_PS", 1)
-            elif (int(row["powerPS"]) >= 190) & (int(row["powerPS"]) < 200): 
-                date_base._set_value(k, "190_200_PS", 1)
-            elif (int(row["powerPS"]) >= 200) & (int(row["powerPS"]) < 225): 
-                date_base._set_value(k, "200_225_PS", 1)
-            elif (int(row["powerPS"]) >= 225) & (int(row["powerPS"]) < 250): 
-                date_base._set_value(k, "225_250_PS", 1)
-            elif (int(row["powerPS"]) >= 250) & (int(row["powerPS"]) < 275): 
-                date_base._set_value(k, "250_275_PS", 1)
-            elif (int(row["powerPS"]) >= 275) & (int(row["powerPS"]) < 300): 
-                date_base._set_value(k, "275_300_PS", 1)
-            elif (int(row["powerPS"]) >= 300) & (int(row["powerPS"]) < 350): 
-                date_base._set_value(k, "300_350_PS", 1)
-            elif (int(row["powerPS"]) >= 350) & (int(row["powerPS"]) < 400): date_base._set_value(k, "350_400_PS", 1)
-            elif int(row["powerPS"]) >= 400: date_base._set_value(k, "above_400_PS", 1)
-            else: 
-                breakpoint()
-                pass        
+            if int(row["powerPS"]) < 50: date_base._set_value(k, "under_50_PS", 1)
+            if int(row["powerPS"]) < 75: date_base._set_value(k, "under_75_PS", 1)
+            if int(row["powerPS"]) < 100: date_base._set_value(k, "under_100_PS", 1)
+            if int(row["powerPS"]) < 125: date_base._set_value(k, "under_125_PS", 1)
+            if int(row["powerPS"]) < 150: date_base._set_value(k, "under_150_PS", 1)
+            if int(row["powerPS"]) < 175: date_base._set_value(k, "under_175_PS", 1)
+            if int(row["powerPS"]) < 200: date_base._set_value(k, "under_200_PS", 1)
+            if int(row["powerPS"]) < 250: date_base._set_value(k, "under_250_PS", 1)
+            if int(row["powerPS"]) < 300: date_base._set_value(k, "under_300_PS", 1)
+            if int(row["powerPS"]) < 400: date_base._set_value(k, "under_400_PS", 1)
+            if int(row["powerPS"]) >= 400: date_base._set_value(k, "above_400_PS", 1)
+      
 
 
     def transformer(self):
@@ -149,8 +122,12 @@ class Model_pre:
     
     def clean_table(self):
         """cleaning Datas from invalid, extreme values and not needed columns"""
-        self.db = self.db.drop(columns=['seller','offerType','nrOfPictures','dateCrawled','name','lastSeen;;;;;;;;'
+        self.db = self.db.drop(columns=['seller','offerType','nrOfPictures','dateCrawled','name', 'dateCrawled', 'dateCreated'
                                         ,'monthOfRegistration','dateCreated','postalCode','abtest'])
+        try: self.db = self.db.drop(columns=[ 'lastSeen;;;;;;;;'])
+        except: pass
+        try: self.db = self.db.drop(columns=[ 'lastSeen'])
+        except: pass
         self.db = self.db.dropna()
         self.clean_powerPS()
         self.clean_price()
@@ -172,7 +149,7 @@ class Model_pre:
         self.db  = self.db[(self.db.powerPS > 60) & (self.db.powerPS < 400)]
         
     def filter(self):
-        self.db  = self.db[self.db.brand == "audi"]
+        #self.db  = self.db[self.db.brand == "audi"]
         #volkswagen' 'skoda' 'bmw' 'peugeot' 'mazda' 'nissan' 'renault' 'ford'
                                                 # 'mercedes_benz' 'honda' 'mini' 'smart' 'audi' 'subaru' 'mitsubishi'
                                                 # 'hyundai' 'opel' 'alfa_romeo' 'seat' 'lancia' 'porsche' 'citroen'
@@ -188,68 +165,174 @@ class Model_pre:
         #self.db  = self.db[(self.db.yearOfRegistration > 2004) & (self.db.yearOfRegistration < 2008)]
         #self.db  = self.db[(self.db.powerPS > 109) & (self.db.powerPS < 151)]
         #self.db  = self.db[(self.db.kilometer > 90000) & (self.db.kilometer < 150000)]
-
+        pass
 
         
         self.db = self.db.dropna()
-
-    def linear_regression(self):
-        x = self.t_db.drop(columns=['price'])
-        y = self.t_db['price']
-        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=666)
-        self.reg = LinearRegression().fit(X_train, y_train,)
+        
+    def scale_variables(self):
+        Sc = StandardScaler()
+        Sc.fit(self.x_train)
+        self.x_train = Sc.transform(self.x_train)
+        Sc.fit(self.x_test)
+        self.x_test = Sc.transform(self.x_test)
 
         
+    def devide_set(self):
+        x = self.t_db.drop(columns=['price'])
+        y = self.t_db['price']
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x, y, test_size=0.2, random_state=666)
+
+    def linear_regression(self, skip_train = False, to_predict = None):
+        if not skip_train:
+            self.li_r = LinearRegression().fit(self.x_train, self.y_train)
+            y_pred = self.li_r.predict(self.x_test)
+            r2 = r2_score(self.y_test, y_pred)
+        if  to_predict is not None: return self.li_r.predict(to_predict)
+        return {self.linear_regression:r2}
+        
+    def lasso_regression(self, skip_train = False, to_predict = None):
+        if not skip_train:
+            self.la_r = Lasso (normalize = True).fit(self.x_train, self.y_train)
+            y_pred = self.la_r.predict(self.x_test)
+            r2 = r2_score(self.y_test, y_pred)
+        if to_predict is not None: return self.la_r.predict(to_predict)
+        return {self.lasso_regression:r2}
+
+    def ridge_regression(self, skip_train = False, to_predict = None):
+        if not skip_train:
+            self.ri_r = Ridge(normalize = True).fit(self.x_train, self.y_train)
+            y_pred = self.ri_r.predict(self.x_test)
+            r2 = r2_score(self.y_test, y_pred)
+        if to_predict is not None: return self.ri_r.predict(to_predict)
+        return {self.ridge_regression:r2}
+
+    def adaboost_regressor(self, skip_train = False, to_predict = None):
+        if not skip_train:
+            self.ab_r = AdaBoostRegressor(n_estimators =1000).fit(self.x_train, self.y_train)
+            y_pred = self.ab_r.predict(self.x_test)
+            r2 = r2_score(self.y_test, y_pred)
+        if to_predict is not None: return self.ab_r.predict(to_predict)
+        return {self.adaboost_regressor:r2}
+
+    def random_forrest_regressor(self, skip_train = False, to_predict = None):
+        if not skip_train:
+            self.rf_r = AdaBoostRegressor(n_estimators =1000).fit(self.x_train, self.y_train)
+            y_pred = self.rf_r.predict(self.x_test)
+            r2 = r2_score(self.y_test, y_pred)
+        if to_predict is not None: return  self.rf_r.predict(to_predict)
+        return {self.random_forrest_regressor:r2}
+
+    def k_neighbors_regressor(self, skip_train = False, to_predict = None):
+        if not skip_train:
+            self.kn_r = KNeighborsRegressor().fit(self.x_train, self.y_train)
+            y_pred =  self.kn_r.predict(self.x_test)
+            r2 = r2_score(self.y_test, y_pred)
+        if to_predict is not None: return  self.kn_r.predict(to_predict)
+        return {self.k_neighbors_regressor:r2}
+    
+    def check_all_models(self):
+        scores = {}
+        list = [self.linear_regression(), self.adaboost_regressor(), self.lasso_regression(), self.ridge_regression(), self.random_forrest_regressor(), self.k_neighbors_regressor()] 
+        for reg in list: scores.update(reg)
+        print(scores)
+        return scores
+
+    def choose_model(self):
+        return max(self.check_all_models(), key=self.check_all_models().get)
+
+    def predict_by_best_model(self, to_predict):
+        print(self.choose_model()(skip_train = True, to_predict = to_predict))
+
+    def to_predict():
+        pass
+    
+    def prepare_datebase(self):
+        self.clean_table()
+        self.filter()
+        self.transformer()
+        self.devide_set()
+        #self.scale_variables()
+    
+    def predict_price(self, to_predict):
+        self.prepare_datebase()
+        self.predict_by_best_model(to_predict=to_predict)
+    
+    
     def make_model(self):
         print("make model processing...")
         x = self.t_db.drop(columns=['price'])
         y = self.t_db['price']
-        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=666)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=666)
         """ classifier = SVC()
         print("Fitting classifier")
-        classifier.fit(X_train, y_train)
+        classifier.fit(x_train, y_train)
         print("Predicting Y ")
-        y_predicted = classifier.predict(X_test)
+        y_predicted = classifier.predict(x_test)
         print(y_test,y_predicted)
         print("Calculating Accuracy...")
         print('Accuracy: ', accuracy_score(y_test, y_predicted))
         print("Calculating F1...")
         print('F1: ', f1_score(y_test, y_predicted, average='macro'))
         print(classifier.coef0)
-        print(X_test[20:25])
-        print(classifier.predict(X_test[20:25]))"""
+        print(x_test[20:25])
+        print(classifier.predict(x_test[20:25]))"""
         
-        self.reg = LinearRegression().fit(X_train, y_train,)
+        self.reg = LinearRegression().fit(x_train, y_train,)
         
-        print("score ", self.reg.score(X_train, y_train))
+        print("score ", self.reg.score(x_train, y_train))
         print("coef", self.reg.coef_)
         
         print(y_test[0:10])
-        print(self.reg.predict(X_test[0:10]))
-        print(X_test[0:10])
+        print(self.reg.predict(x_test[0:10]))
+        print(x_test[0:10])
         
-
+    def show_sampler(self):
+        print(self.y_test[0:10])
+"""
 dbooo = "./cars_selling.csv"
 current_dbooo = pd.read_csv(dbooo, encoding='latin1')
-current_dbooo = current_dbooo[:1000]
+#current_dbooo = current_dbooo[:100000]
 test_obj = Model_pre(current_dbooo)
 test_obj.clean_table()
 test_obj.filter()
-#current_dbooo = pd.read_excel("output3.xlsx")
 test_obj.transformer()
-test_obj.make_model()
+test_obj.devide_set()
+#test_obj.scale_variables()
+test_obj.choose_model()
+test_obj.show_sampler()
+#test_obj.predict_by_best_model()
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#test_obj.make_model() juz z tego nie korzystamy 
 #print(test_obj.db())
 
 #test_obj.t_db.to_excel("output.xlsx")  
 
 
-new_row = {"audi":1,  'manuell':1  ,'kombi':1  ,'nein':1   ,'a4':1  ,'benzin':1  ,'is_above_50k':1  ,'110_120_PS':1  ,2012.0:1}
-test_obj.t_db = test_obj.t_db.append(new_row, ignore_index=True)
-print(_db := test_obj.t_db.tail(1).fillna(0).drop(columns = ["price"]))
-print(_db)
-print(test_obj.t_db.columns.tolist())
-test = test_obj.t_db[99:100].drop(columns = ["price"])
-new_row = test_obj.t_db.tail(1).drop(columns = ["price"])
+#new_row = {"audi":1,  'manuell':1  ,'kombi':1  ,'nein':1   ,'a4':1  ,'benzin':1  ,'is_above_50k':1  ,'110_120_PS':1  ,2012.0:1}
+#test_obj.t_db = test_obj.t_db.append(new_row, ignore_index=True)
+#print(_db := test_obj.t_db.tail(1).fillna(0).drop(columns = ["price"]))
+#print(_db)
+#print(test_obj.t_db.columns.tolist())
+##test = test_obj.t_db[99:100].drop(columns = ["price"])
+#new_row = test_obj.t_db.tail(1).drop(columns = ["price"])
 
 
 #print(test.loc[:, (test != 0).any(axis=0)])

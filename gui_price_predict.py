@@ -137,13 +137,15 @@ class Gui():
         self.autosDBF = self.autoDB.current_db
         self.autosDBF = self.autosDBF[(self.autosDBF.brand.isin(self.filterBrand))
                             & (self.autosDBF.model.isin(self.filterModel))
-                            & (self.autosDBF.vehicleType.isin(self.filterVehType))
-                            & (self.autosDBF.gearbox == self.gearboxFilter)
-                            & (self.autosDBF.fuelType == self.fuelTypeFilter)
-                            & (self.autosDBF.kilometer >= (self.kmStandFilter - 25000)) 
-                                & (self.autosDBF.kilometer <= (self.kmStandFilter + 25000))
                             & (self.autosDBF.yearOfRegistration >= self.prodYearFilter - 1) 
                                 & (self.autosDBF.yearOfRegistration <= self.prodYearFilter + 1)]
+                
+        if len(dbf_try := self.autosDBF[self.autosDBF.vehicleType.isin(self.filterVehType)]) >= 100:
+            self.autosDBF = dbf_try
+        if len(dbf_try := self.autosDBF[self.autosDBF.gearbox == self.gearboxFilter]) >= 100:
+            self.autosDBF = dbf_try
+        if len(dbf_try := self.autosDBF[self.autosDBF.fuelType == self.fuelTypeFilter]) >= 100:
+            self.autosDBF = dbf_try
         
     def getModel(self):
         """getting current sellection of Models or all available Models"""
@@ -199,48 +201,54 @@ class Gui():
 
         
     def make_prediction(self):
-        dbooo = "./cars_selling.csv"
-        current_dbooo = pd.read_csv(dbooo, encoding='latin1')
-        current_dbooo = current_dbooo[:1000]
+        #dbooo = "./cars_selling.csv"
+        current_dbooo = self.autosDBF
+        print("*************************")
+        #print(current_dbooo.describe())
+        #print(current_dbooo.info())
+
+        #current_dbooo = current_dbooo[:100000]
         self.predicton_model = Model_pre(current_dbooo)
-        self.predicton_model.clean_table()
-        self.predicton_model.filter()
-        self.predicton_model.transformer()
-        self.predicton_model.linear_regression()
+        self.predicton_model.prepare_datebase()
         self.predict_from_filter()
 
     def predict_from_filter(self):
         
         self.predicton_model.t_db = self.predicton_model.t_db.append(self.transform_series(), ignore_index=True)
-        _db = self.predicton_model.t_db.tail(1).fillna(0).drop(columns = ["price"])
-        print(self.predicton_model.t_db.columns.tolist())
-        print(self.predicton_model.reg.predict(_db))
+        to_predict = self.predicton_model.t_db.tail(1).fillna(0).drop(columns = ["price"])
+        
+        
+        self.predicton_model.predict_by_best_model(to_predict=to_predict)
+        self.predicton_model.show_sampler()
+        print(self.predicton_model.y_test.describe())
+
+        self.predicton_model.t_db.to_excel("output.xlsx")  
+
+        #print(self.predicton_model.t_db.columns.tolist())
+        #print(self.predicton_model.reg.predict(_db))
 
               
-        
-        
-            
     def statsFiltersAdv(self):
         ### count autos by Brand
         newDBFStatsBrand = self.autosDBF[['brand']].copy().dropna()
         newDBFStatsBrand['index1'] = newDBFStatsBrand.index
         newDBFStatsBrand = newDBFStatsBrand.groupby(['brand']).nunique()   
         newDBFStatsBrand.drop(newDBFStatsBrand[newDBFStatsBrand.index1 == 0 ].index, inplace= True)
-        print(str(newDBFStatsBrand))
+        #print(str(newDBFStatsBrand))
         
         ### count autos by Model
         newDBFStatsModel = self.autosDBF[['model']].copy().dropna()
         newDBFStatsModel['index1'] = newDBFStatsModel.index
         newDBFStatsModel = newDBFStatsModel.groupby(['model']).nunique()   
         newDBFStatsModel.drop(newDBFStatsModel[newDBFStatsModel.index1 == 0 ].index, inplace= True)
-        print(str(newDBFStatsModel))
+        #print(str(newDBFStatsModel))
         
         ### count autos by vehicleType
         newDBFStatsVehType = self.autosDBF[['vehicleType']].copy().dropna()
         newDBFStatsVehType['index1'] = newDBFStatsVehType.index
         newDBFStatsVehType = newDBFStatsVehType.groupby(['vehicleType']).nunique()   
         newDBFStatsVehType.drop(newDBFStatsVehType[newDBFStatsVehType.index1 == 0 ].index, inplace= True)
-        print(str(newDBFStatsVehType))
+        #print(str(newDBFStatsVehType))
         
         
         
