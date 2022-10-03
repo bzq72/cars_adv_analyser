@@ -1,3 +1,4 @@
+from genericpath import exists
 import tkinter as tk
 from tkinter import BOTH, E, END, HORIZONTAL, LEFT, NE, RIGHT, VERTICAL, W, Menu, ttk
 from tkcalendar import *
@@ -34,7 +35,8 @@ class Gui():
         brandFrame = tk.Frame(self.win)
         optFrame = tk.Frame(self.win)
         datesFrame = tk.Frame(self.win)
-        
+        self.pred_frame = tk.Frame(self.win)
+
         priceFrame = tk.Frame(datesFrame)
         prodYearFrame = tk.Frame(datesFrame)
         powerPSFrame = tk.Frame(datesFrame)
@@ -92,22 +94,21 @@ class Gui():
         ### kmStand
         tk.Label(kmStandFrame, text = "km stand").grid(column = 0, row = 0)
         self.kmStandEntry = tk.Entry(kmStandFrame)
-        self.kmStandEntry.insert(-1, '0')
+        self.kmStandEntry.insert(-1, '150000')
         self.kmStandEntry.grid(column = 0, row = 1)
 
         
         ### Production Year
         tk.Label(prodYearFrame, text = "Production year:").grid(column = 0, row = 0)
         self.prodYearComboBox = ttk.Combobox(prodYearFrame, values = list(range(1900, 2023, 1)))
-        self.prodYearComboBox.current(0)
+        self.prodYearComboBox.current(100)
         self.prodYearComboBox.grid(column = 0, row = 1)
         
         ### Power PS
         tk.Label(powerPSFrame, text = "Horse Power").grid(column = 0, row = 0)
         self.powerPSEntry = tk.Entry(powerPSFrame)
-        self.powerPSEntry.insert(-1, '0')
+        self.powerPSEntry.insert(-1, '100')
         self.powerPSEntry.grid(column = 0, row = 1)
-
 
         ### frame placing
         optFrame.grid(row = 1, column = 3, ipady = 5)
@@ -119,6 +120,11 @@ class Gui():
         dataCreatedFrame.pack(side = 'top')
         buttonFrame.grid(row = 0, column = 4)
         
+        ### Price prediction
+        tk.Label(self.pred_frame, text = "Your car is worth: ").pack(side = 'top')
+        tk.Label(self.pred_frame, text = f" Euro" ).pack(side = 'top')
+        self.pred_frame.grid(row = 2, column = 2)
+
         tk.Button(buttonFrame, text = "Check price", command = lambda: self.getFilter()).grid(row = 0, column = 0,ipadx = 10)
         tk.Button(buttonFrame,text="Reset",command=lambda: self.cleanTable()).grid(row=0, column = 1,ipadx = 10)
         tk.Button(buttonFrame, text='Complete categories', command = lambda: self.autoDB.complCatFunc()).grid(row=0, column = 2,ipadx = 10)
@@ -140,11 +146,12 @@ class Gui():
                             & (self.autosDBF.yearOfRegistration >= self.prodYearFilter - 1) 
                                 & (self.autosDBF.yearOfRegistration <= self.prodYearFilter + 1)]
                 
-        if len(dbf_try := self.autosDBF[self.autosDBF.vehicleType.isin(self.filterVehType)]) >= 100:
-            self.autosDBF = dbf_try
+        
         if len(dbf_try := self.autosDBF[self.autosDBF.gearbox == self.gearboxFilter]) >= 100:
             self.autosDBF = dbf_try
         if len(dbf_try := self.autosDBF[self.autosDBF.fuelType == self.fuelTypeFilter]) >= 100:
+            self.autosDBF = dbf_try
+        if len(dbf_try := self.autosDBF[self.autosDBF.vehicleType.isin(self.filterVehType)]) >= 100:
             self.autosDBF = dbf_try
         
     def getModel(self):
@@ -191,7 +198,7 @@ class Gui():
     def transform_series(self):
         data_to_predict = {self.filterBrand[0]:[1], self.filterModel[0]:[1], self.filterVehType[0]:[1], self.gearboxFilter:[1]
                            , self.fuelTypeFilter:[1], float(self.prodYearFilter):[1],"powerPS": [int(self.powerPSFilter)]
-                           , 'kilometer':[int(self.kmStandFilter)]}
+                           , 'kilometer':[int(self.kmStandFilter)], 'nein':1}
         
         data_to_predict = pd.DataFrame.from_dict(data_to_predict)
         trans = Model_pre
@@ -217,11 +224,16 @@ class Gui():
         self.predicton_model.t_db = self.predicton_model.t_db.append(self.transform_series(), ignore_index=True)
         to_predict = self.predicton_model.t_db.tail(1).fillna(0).drop(columns = ["price"])
         
-        
-        self.predicton_model.predict_by_best_model(to_predict=to_predict)
+        pred_price = int(self.predicton_model.predict_by_best_model(to_predict=to_predict)[0])
         self.predicton_model.show_sampler()
         print(self.predicton_model.y_test.describe())
-
+        
+        self.pred_frame.destroy()
+        self.pred_frame = tk.Frame(self.win)
+        tk.Label(self.pred_frame, text = "Your car is worth: ").pack(side = 'top')
+        tk.Label(self.pred_frame, text = f"{pred_price} Euro" ).pack(side = 'top')
+        self.pred_frame.grid(row = 2, column = 2)
+        
         self.predicton_model.t_db.to_excel("output.xlsx")  
 
         #print(self.predicton_model.t_db.columns.tolist())

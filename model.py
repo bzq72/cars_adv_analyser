@@ -242,7 +242,7 @@ class Model_pre:
         return max(self.check_all_models(), key=self.check_all_models().get)
 
     def predict_by_best_model(self, to_predict):
-        print(self.choose_model()(skip_train = True, to_predict = to_predict))
+        return self.choose_model()(skip_train = True, to_predict = to_predict)
 
     def to_predict():
         pass
