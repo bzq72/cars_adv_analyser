@@ -1,15 +1,11 @@
-from operator import truediv
-from os import truncate
 from pandas_profiling import ProfileReport
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, f1_score
 from sklearn.linear_model import LinearRegression, Lasso, Ridge
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
-from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
+from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neighbors import KNeighborsRegressor
 
 class Model_pre:
@@ -167,7 +163,6 @@ class Model_pre:
         #self.db  = self.db[(self.db.kilometer > 90000) & (self.db.kilometer < 150000)]
         pass
 
-        
         self.db = self.db.dropna()
         
     def scale_variables(self):
@@ -258,37 +253,11 @@ class Model_pre:
         self.prepare_datebase()
         self.predict_by_best_model(to_predict=to_predict)
     
-    
-    def make_model(self):
-        print("make model processing...")
-        x = self.t_db.drop(columns=['price'])
-        y = self.t_db['price']
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=666)
-        """ classifier = SVC()
-        print("Fitting classifier")
-        classifier.fit(x_train, y_train)
-        print("Predicting Y ")
-        y_predicted = classifier.predict(x_test)
-        print(y_test,y_predicted)
-        print("Calculating Accuracy...")
-        print('Accuracy: ', accuracy_score(y_test, y_predicted))
-        print("Calculating F1...")
-        print('F1: ', f1_score(y_test, y_predicted, average='macro'))
-        print(classifier.coef0)
-        print(x_test[20:25])
-        print(classifier.predict(x_test[20:25]))"""
-        
-        self.reg = LinearRegression().fit(x_train, y_train,)
-        
-        print("score ", self.reg.score(x_train, y_train))
-        print("coef", self.reg.coef_)
-        
-        print(y_test[0:10])
-        print(self.reg.predict(x_test[0:10]))
-        print(x_test[0:10])
-        
     def show_sampler(self):
         print(self.y_test[0:10])
+        
+        
+        
 """
 dbooo = "./cars_selling.csv"
 current_dbooo = pd.read_csv(dbooo, encoding='latin1')

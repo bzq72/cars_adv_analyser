@@ -30,7 +30,7 @@ class DB:
         #print(self.current_db.info(memory_usage='deep'))
         pass 
     
-    def completeCatFuelType(self):
+    def complete_cat_fuel_type(self):
         for k, el in enumerate(self.current_db['name']):
             row = self.current_db.iloc[k]
             if str(row['fuelType']).lower() in ['nan', 'na']:
@@ -39,7 +39,7 @@ class DB:
                     elif  word in self.benzin_type_by_motor: self.current_db._set_value(k,'fuelType','benzin')
                     elif word in self.diesel_type_by_motor: self.current_db._set_value(k,'fuelType','diesel')
 
-    def completeModel(self):
+    def complete_model(self):
         for k, el in enumerate(self.current_db['name']):
             row = self.current_db.iloc[k]
             if str(row['model']).lower() in ['nan', 'na']:
@@ -47,7 +47,7 @@ class DB:
                     if word in self.audi_models:
                         self.current_db._set_value(k,'model',word)   
 
-    def completeGearbox(self):
+    def complete_gearbox(self):
         for k,el in enumerate(self.current_db['name']):
             row = self.current_db.iloc[k]
             if str(row['gearbox']).lower() in ['nan','na']:
@@ -57,22 +57,22 @@ class DB:
                     elif word == 'manuell':
                         self.current_db._set_value(k, 'gearbox','manuell')
         
-    def createListFromColumn(self,columnName):
+    def create_list_from_column(self,columnName):
         return self.current_db[str(columnName)].unique().tolist()    
     
-    def complCatFunc(self):
-        current_db.completeCatFuelType()
-        current_db.completeModel()
-        current_db.completeGearbox()
+    def compl_cat_func(self):
+        current_db.complete_cat_fuel_type()
+        current_db.complete_model()
+        current_db.complete_gearbox()
         print("bangla")
 
                 
 database = "./cars_selling_sh.csv"
 
 current_db = DB(database)
-current_db.completeCatFuelType()
-current_db.completeModel()
-current_db.completeGearbox()
+current_db.complete_cat_fuel_type()
+current_db.complete_model()
+current_db.complete_gearbox()
 current_db.show()
 
 #90
