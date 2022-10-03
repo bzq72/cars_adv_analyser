@@ -180,8 +180,8 @@ class Model_pre:
         
     def devide_set(self):
         x = self.t_db.drop(columns=['price'])
-        y = self.t_db['price']
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x, y, test_size=0.2, random_state=666)
+        self.y = self.t_db['price']
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x, self.y, test_size=0.2, random_state=666)
 
     def linear_regression(self, skip_train = False, to_predict = None):
         if not skip_train:
