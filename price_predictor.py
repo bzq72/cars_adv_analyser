@@ -89,8 +89,8 @@ class price_predictor(gui_base):
         self.autos_DBF = self.auto_DB.current_db
         self.autos_DBF = self.autos_DBF[(self.autos_DBF.brand.isin(self.filter_brand))
                             & (self.autos_DBF.model.isin(self.filter_model))
-                            & (self.autos_DBF.yearOfRegistration >= self.prod_year_filter - 1) 
-                                & (self.autos_DBF.yearOfRegistration <= self.prod_year_filter + 1)]
+                            & (self.autos_DBF.yearOfRegistration >= self.prod_year_filter - 2) 
+                                & (self.autos_DBF.yearOfRegistration <= self.prod_year_filter + 2)]
                 
         if len(dbf_try := self.autos_DBF[self.autos_DBF.gearbox == self.gearbox_filter]) >= 100:
             self.autos_DBF = dbf_try
