@@ -2,6 +2,7 @@ from gui_base import gui_base
 
 class Browser(gui_base):
     def prepare_gui(self):
+        """preparing gui"""
         self.prepare_frames()
         self.prepare_brand_frame()
         self.prepare_buttons()
@@ -19,6 +20,7 @@ class Browser(gui_base):
         self.adv_browser()   
         
     def get_filter(self):
+        """getting current selection and filtering data"""
         self.clean_table()
         super().get_filter()
         

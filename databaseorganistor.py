@@ -35,11 +35,9 @@ class DB:
             self.current_db.drop(columns="lastSeen;;;;;;;;")
         except:
             pass
-            
         self.current_db = self.current_db[self.current_db.lastSeen.notnull()]
         self.current_db['lastSeen'] = pd.to_datetime(self.current_db['lastSeen']
                                                     ,format="%Y-%m-%d %H:%M:%S", errors = 'coerce')
-        
         self.current_db['dateCrawled'] = pd.to_datetime(self.current_db['dateCrawled']
                                                     ,format="%Y-%m-%d %H:%M:%S", errors = 'coerce')
         self.current_db['dateCreated'] = pd.to_datetime(self.current_db['dateCreated']
@@ -76,7 +74,6 @@ class DB:
     def complete_model(self):
         """completing audi models by data in adv title"""
         print("completing audi models")
-
         i=0
         for k, el in enumerate(self.current_db['name']):
             row = self.current_db.iloc[k]
@@ -117,8 +114,6 @@ class DB:
         self.complete_cat_fueltype()
         self.complete_model()
         self.complete_gearbox()
-        
-    
         
         """        
 database = "./cars_selling.csv"

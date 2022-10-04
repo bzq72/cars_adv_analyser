@@ -1,10 +1,10 @@
-from pandas_profiling import ProfileReport
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, Lasso, Ridge
+from pandas_profiling import ProfileReport
 import numpy as np
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from tkinter import messagebox
@@ -14,6 +14,7 @@ class Model_pre:
         self.db = db
     
     def make_profile(self):
+        """creating raport of DB"""
         profile = ProfileReport(self.db)
         profile.to_notebook_iframe()
 
@@ -63,7 +64,6 @@ class Model_pre:
         print("transform_c_kilometer processing...")
         new_columns = ["is_above_150k", "is_above_100k","is_above_50k","is_under_50k"]
         for column in new_columns:  date_base[column] = 0 
-
         for k in date_base.index:
             if k % 1000 == 0: print("k= ", k)
             row = date_base.iloc[k]
@@ -82,14 +82,11 @@ class Model_pre:
                 breakpoint()
                 pass        
 
-
     def transform_c_powerPS(self,date_base): #powerPS
         """transforming column powerPS to boolean/categorical columns"""
-
         print("transform_c_powerPS processing...")
         new_columns = ["under_50_PS", "under_75_PS","under_100_PS","under_125_PS","under_150_PS","under_175_PS","under_200_PS","under_250_PS","under_300_PS"
                        ,"under_400_PS","above_400_PS"]
-        
         for column in new_columns: date_base[column] = 0 
         for k in date_base.index:
             row =date_base.iloc[k]
@@ -105,8 +102,6 @@ class Model_pre:
             if int(row["powerPS"]) < 400: date_base._set_value(k, "under_400_PS", 1)
             if int(row["powerPS"]) >= 400: date_base._set_value(k, "above_400_PS", 1)
       
-
-
     def transformer(self):
         """transforming columns to more appropriate"""
         self.clean_price()
@@ -116,7 +111,6 @@ class Model_pre:
         self.transform_c_year()
         self.t_db = self.t_db.drop(columns=["brand","powerPS","yearOfRegistration",'gearbox','fuelType','vehicleType','notRepairedDamage','kilometer','model'])
 
-    
     def clean_table(self):
         """cleaning Datas from invalid, extreme values and not needed columns"""
         self.db = self.db.drop(columns=['seller','offerType','nrOfPictures','dateCrawled','name', 'dateCrawled', 'dateCreated'
@@ -146,6 +140,7 @@ class Model_pre:
         self.db  = self.db[(self.db.powerPS > 60) & (self.db.powerPS < 400)]
         
     def filter(self):
+        """static filter"""
         #self.db  = self.db[self.db.brand == "audi"]
         #volkswagen' 'skoda' 'bmw' 'peugeot' 'mazda' 'nissan' 'renault' 'ford'
                                                 # 'mercedes_benz' 'honda' 'mini' 'smart' 'audi' 'subaru' 'mitsubishi'
@@ -167,6 +162,7 @@ class Model_pre:
         self.db = self.db.dropna()
         
     def scale_variables(self):
+        """scaling variables from DB with mean = 0 and std = 1"""
         Sc = StandardScaler()
         Sc.fit(self.x_train)
         self.x_train = Sc.transform(self.x_train)
@@ -175,11 +171,13 @@ class Model_pre:
 
         
     def devide_set(self):
+        """deviding db to train and test sets"""
         x = self.t_db.drop(columns=['price'])
         self.y = self.t_db['price']
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x, self.y, test_size=0.2, random_state=666)
 
     def linear_regression(self, skip_train = False, to_predict = None):
+        """making prediction by linear regression"""
         if not skip_train:
             self.li_r = LinearRegression().fit(self.x_train, self.y_train)
             y_pred = self.li_r.predict(self.x_test)
@@ -188,6 +186,7 @@ class Model_pre:
         return {self.linear_regression:r2}
         
     def lasso_regression(self, skip_train = False, to_predict = None):
+        """making prediction by lasso regression"""
         if not skip_train:
             self.la_r = Lasso (normalize = True).fit(self.x_train, self.y_train)
             y_pred = self.la_r.predict(self.x_test)
@@ -196,6 +195,7 @@ class Model_pre:
         return {self.lasso_regression:r2}
 
     def ridge_regression(self, skip_train = False, to_predict = None):
+        """making prediction by ridge regression"""
         if not skip_train:
             self.ri_r = Ridge(normalize = True).fit(self.x_train, self.y_train)
             y_pred = self.ri_r.predict(self.x_test)
@@ -204,6 +204,7 @@ class Model_pre:
         return {self.ridge_regression:r2}
 
     def adaboost_regressor(self, skip_train = False, to_predict = None):
+        """making prediction by AdaBoost regression"""
         if not skip_train:
             self.ab_r = AdaBoostRegressor(n_estimators =1000).fit(self.x_train, self.y_train)
             y_pred = self.ab_r.predict(self.x_test)
@@ -212,6 +213,7 @@ class Model_pre:
         return {self.adaboost_regressor:r2}
 
     def random_forrest_regressor(self, skip_train = False, to_predict = None):
+        """making prediction by Random Forrest regressor"""
         if not skip_train:
             self.rf_r = AdaBoostRegressor(n_estimators =1000).fit(self.x_train, self.y_train)
             y_pred = self.rf_r.predict(self.x_test)
@@ -220,6 +222,7 @@ class Model_pre:
         return {self.random_forrest_regressor:r2}
 
     def k_neighbors_regressor(self, skip_train = False, to_predict = None):
+        """making prediction by KNearest regressor"""
         if not skip_train:
             self.kn_r = KNeighborsRegressor().fit(self.x_train, self.y_train)
             y_pred =  self.kn_r.predict(self.x_test)
@@ -228,6 +231,7 @@ class Model_pre:
         return {self.k_neighbors_regressor:r2}
     
     def check_all_models(self):
+        """collecting models accurency"""
         scores = {}
         list = [self.linear_regression(), self.adaboost_regressor(), self.lasso_regression(), self.ridge_regression(), self.random_forrest_regressor(), self.k_neighbors_regressor()] 
         for reg in list: scores.update(reg)
@@ -235,15 +239,18 @@ class Model_pre:
         return scores
 
     def choose_model(self):
+        """choosing best model"""
         return max(self.check_all_models(), key=self.check_all_models().get)
 
     def predict_by_best_model(self, to_predict):
+        """predicting value by best model"""
         return self.choose_model()(skip_train = True, to_predict = to_predict)
 
     def to_predict():
         pass
     
     def prepare_datebase(self):
+        """preparing db"""
         self.clean_table()
         self.filter()
         self.transformer()
@@ -253,10 +260,12 @@ class Model_pre:
         #self.scale_variables()
     
     def predict_price(self, to_predict):
+        """predicting price"""
         self.prepare_datebase()
         self.predict_by_best_model(to_predict=to_predict)
     
     def show_sampler(self):
+        """showing samples""" 
         print(self.y_test[0:10])
         
         

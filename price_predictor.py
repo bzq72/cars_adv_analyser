@@ -15,6 +15,7 @@ from tkinter import messagebox
 
 class price_predictor(gui_base):
     def prepare_gui(self):
+        """preparing gui"""
         self.prepare_frames()
         self.prepare_brand_frame()
         self.prepare_buttons()
@@ -29,6 +30,7 @@ class price_predictor(gui_base):
         self.placing_frame()
         
     def prepare_frames(self):
+        """preparing frames"""
         self.veh_type_main_frame =  tk.Frame(self.main_frame)
         self.veh_type_frame =  tk.Frame(self.veh_type_main_frame)
         self.model_main_frame = tk.Frame(self.main_frame)
@@ -47,6 +49,7 @@ class price_predictor(gui_base):
 
         
     def prepare_km_stand_frame(self):
+        """preparing km stand frame"""
         tk.Label(self.km_stand_frame, text = "Actual km stand").grid(column = 0, row = 0)
         self.km_stand_entry = tk.Entry(self.km_stand_frame)
         self.km_stand_entry.insert(-1, '150000')
@@ -54,18 +57,21 @@ class price_predictor(gui_base):
 
         
     def prepare_prod_year_frame(self):
+        """preparing producion year frame"""
         tk.Label(self.prod_year_frame, text = "Production year:").grid(column = 0, row = 0)
         self.prod_year_combobox = ttk.Combobox(self.prod_year_frame, values = list(range(1900, 2023, 1)))
         self.prod_year_combobox.current(100)
         self.prod_year_combobox.grid(column = 0, row = 1)
         
     def prepare_power_ps_frame(self):
+        """preparing power PS frame"""
         tk.Label(self.power_ps_frame, text = "Horse Power").grid(column = 0, row = 0)
         self.power_ps_entry = tk.Entry(self.power_ps_frame)
         self.power_ps_entry.insert(-1, '100')
         self.power_ps_entry.grid(column = 0, row = 1)
 
     def placing_frame(self):
+        """placing frame in window"""
         self.opt_frame.grid(row = 1, column = 3, ipady = 5)
         self.km_stand_frame.pack(side = 'top')
         self.pred_frame.grid(row = 2, column = 2)
@@ -76,10 +82,12 @@ class price_predictor(gui_base):
         
         
     def price_pred_frame(self):
+        """preparing prediction frame"""
         tk.Label(self.pred_frame, text = "Your car is worth: ").grid(column = 0, row = 0)
         tk.Label(self.pred_frame, text = f" Euro" ).grid(column = 0, row = 1)
         
     def prepare_buttons(self):
+        """preparing buttons"""
         tk.Button(self.button_frame, text = "Check price", command = lambda: self.get_filter()).grid(row = 0, column = 0)
         tk.Button(self.button_frame, text='Complete missing data', command = self.auto_DB.compl_cat_func).grid(row=0, column = 1)
         tk.Button(self.main_frame, text='Check models', command = lambda: self.filter_models_by_brand()).grid(row=0, column = 1)
@@ -105,7 +113,6 @@ class price_predictor(gui_base):
         if ((len(self.filter_brand)!=1) or (len(self.filter_veh_type)!=1) or (len(self.filter_model)!=1)):
             messagebox.showerror("Error", "Please choose one varaible for each category")
             return
-            
         self.make_prediction()
     
     def get_params(self):
@@ -118,32 +125,29 @@ class price_predictor(gui_base):
         
 
     def transform_series(self):
+        """transforming columns boolean/categorical columns"""
         data_to_predict = {self.filter_brand[0]:[1], self.filter_model[0]:[1], self.filter_veh_type[0]:[1], self.gearbox_filter:[1]
                            , self.fuel_type_filter:[1], float(self.prod_year_filter):[1],"powerPS": [int(self.power_ps_filter)]
                            , 'kilometer':[int(self.km_stand_filter)], 'nein':1}
-        
         data_to_predict = pd.DataFrame.from_dict(data_to_predict)
         trans = Model_pre
         Model_pre.transform_c_powerPS(trans, data_to_predict)
         Model_pre.transform_c_kilometer(trans, data_to_predict)
         return data_to_predict.drop(columns=["powerPS","kilometer"])
 
-        
     def make_prediction(self):
+        """preparing DB and predicting car price"""
         current_dbooo = self.autos_DBF
         self.predicton_model = Model_pre(current_dbooo)
         self.predicton_model.prepare_datebase()
         self.predict_from_filter()
 
     def predict_from_filter(self):
-        
+        """predicting car price and showing data statictics"""
         self.predicton_model.t_db = self.predicton_model.t_db.append(self.transform_series(), ignore_index=True)
         to_predict = self.predicton_model.t_db.tail(1).fillna(0).drop(columns = ["price"])
-        
         pred_price = int(self.predicton_model.predict_by_best_model(to_predict=to_predict)[0])
-        self.predicton_model.show_sampler()
-        print(self.predicton_model.y_test.describe())
-        
+
         self.pred_frame.destroy()
         self.pred_frame = tk.Frame(self.main_frame)
         tk.Label(self.pred_frame, text = "Your car is worth: ").pack(side = 'top')
@@ -153,15 +157,10 @@ class price_predictor(gui_base):
         tk.Label(self.pred_frame, text = f"max.: {int(self.predicton_model.y.max())} Euro" ).pack(side = 'top')
         tk.Label(self.pred_frame, text = f"mean: {int(self.predicton_model.y.mean())} Euro" ).pack(side = 'top')
         tk.Label(self.pred_frame, text = f"median: {int(self.predicton_model.y.median())} Euro" ).pack(side = 'top')
-
         self.pred_frame.grid(row = 2, column = 2)
         
         self.predicton_model.t_db.to_excel("output.xlsx")  
-
-        #print(self.predicton_model.t_db.columns.tolist())
-        #print(self.predicton_model.reg.predict(_db))
-
-              
+        
     def statsFiltersAdv(self):
         ### count autos by Brand
         newDBFStatsBrand = self.autos_DBF[['brand']].copy().dropna()
@@ -184,14 +183,3 @@ class price_predictor(gui_base):
         newDBFStatsVehType.drop(newDBFStatsVehType[newDBFStatsVehType.index1 == 0 ].index, inplace= True)
         #print(str(newDBFStatsVehType))
         
-        
-        
-#database = "./cars_selling_sh.csv"
-
-#current_db = databaseorganistor.DB(database)
-
-"""win = tk.Tk()
-ourGui = price_predictor(win)
-win.mainloop()"""
-
-#406

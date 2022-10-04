@@ -19,21 +19,6 @@ class gui_base(ABC):
     @abstractmethod
     def prepare_gui(self):
         pass
-        """self.prepare_frames()
-        self.prepare_brand_frame()
-        self.prepare_buttons()
-        self.prepare_chart_frame()
-        self.prepare_creation_frame()
-        self.prepare_fueltype_frame()
-        self.prepare_gearbox_frame()
-        self.prepare_km_stand_frame()
-        self.prepare_model_frame()
-        self.prepare_n_rep_damaged_frame()
-        self.prepare_price_frame()
-        self.prepare_prod_year_frame()
-        self.prepare_seller_frame()
-        self.placing_frame()
-        self.adv_browser()"""
     
     def prepare_frames(self):
         self.veh_type_main_frame =  tk.Frame(self.main_frame)
@@ -195,6 +180,7 @@ class gui_base(ABC):
         
         self.results.grid(row = 0, column = 0)
         results_frame.grid(row = 2, column = 0,columnspan = 5)
+        
     def prepare_buttons(self):
         tk.Button(self.button_frame, text = "Filtr", command = lambda: self.get_filter()).grid(row = 0, column = 0,ipadx = 10)
         tk.Button(self.button_frame,text="Reset",command=lambda: self.clean_table()).grid(row=0, column = 1,ipadx = 10)
