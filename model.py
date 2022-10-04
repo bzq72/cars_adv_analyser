@@ -11,6 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
 from sklearn.ensemble import AdaBoostRegressor, RandomForestClassifier
 from sklearn.neighbors import KNeighborsRegressor
+from tkinter import messagebox
 
 class Model_pre:
     def __init__(self, db):
@@ -180,8 +181,8 @@ class Model_pre:
         
     def devide_set(self):
         x = self.t_db.drop(columns=['price'])
-        y = self.t_db['price']
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x, y, test_size=0.2, random_state=666)
+        self.y = self.t_db['price']
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x, self.y, test_size=0.2, random_state=666)
 
     def linear_regression(self, skip_train = False, to_predict = None):
         if not skip_train:
@@ -251,7 +252,9 @@ class Model_pre:
         self.clean_table()
         self.filter()
         self.transformer()
-        self.devide_set()
+        try: self.devide_set()
+        except: 
+            messagebox.showerror("Error", "The is not enought similar cars to yours \nChange filters and try again")
         #self.scale_variables()
     
     def predict_price(self, to_predict):
