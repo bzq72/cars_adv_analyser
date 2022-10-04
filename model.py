@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neighbors import KNeighborsRegressor
+from tkinter import messagebox
 
 class Model_pre:
     def __init__(self, db):
@@ -246,7 +247,9 @@ class Model_pre:
         self.clean_table()
         self.filter()
         self.transformer()
-        self.devide_set()
+        try: self.devide_set()
+        except: 
+            messagebox.showerror("Error", "The is not enought similar cars to yours \nChange filters and try again")
         #self.scale_variables()
     
     def predict_price(self, to_predict):
