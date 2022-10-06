@@ -30,9 +30,7 @@ Next ideas:
 - 	 get actual adverts.
 
 
-
-## Project description:
-### User manual:
+## User manual:
 Program allowed user to browser cars adverts (browser window) and predtict value of car (predictor window).
 Both windows are devided on few section which are a little differ):
 - 	 Navigation buttons:
@@ -44,7 +42,7 @@ Both windows are devided on few section which are a little differ):
 
 ![This is an image](https://i.postimg.cc/hjjHSMmf/Frames.jpg)
 
-#### Browser window
+### Browser window
 
 *Funtions buttons:*
 - 	"Check models" - before using this button user have to select brand from brand frame. His function is showing available models in model frame for selected brands.
@@ -57,7 +55,7 @@ Both windows are devided on few section which are a little differ):
 *Results fram - showing filtered adverts
 
 
-#### Predictor window
+### Predictor window
 
 In comparison with "Browser window" we can fine few differences:
 - "Check price" button - based on selected features, car price is estimating and showed in "Result frame":
@@ -67,23 +65,23 @@ In comparison with "Browser window" we can fine few differences:
 
 
 
-### Project review:
+## Project review:
 
 Project is devided on 5 clases: 
-	- DB - include: loading database from JSON format, changing columns types, data precleaning, completing functions( jakis link do nich);
-	- Gui_Base - parent class for Browser and Price_Predictor, include main function for GUI organisation, abstractfunctions, warning decorator, getting parameters from filter and filtering;
-	- Browser - include selecting items from parent class
-	- Price_Predictor - include selecting items from parent class, modyfications of some parent functions, handling Model_Pre class;
-	- Model_Pre - include price prediction functions by few regression models and preparing dataframe for their use.
+- 	 DB - include: loading database from JSON format, changing columns types, data precleaning, completing functions( jakis link do nich);
+- 	 Gui_Base - parent class for Browser and Price_Predictor, include main function for GUI organisation, abstractfunctions, warning decorator, getting parameters from filter and filtering;
+- 	 Browser - include selecting items from parent class
+- 	 Price_Predictor - include selecting items from parent class, modyfications of some parent functions, handling Model_Pre class;
+- 	 Model_Pre - include price prediction functions by few regression models and preparing dataframe for their use.
 	
 	
-## Selected programs features description:
+### Selected programs features description:
 
-# Price prediction:
+#### Price prediction:
 Data for car predicition are sourced from main database by filtering similar cars features. Filters are setteed by user. There are also extra filters to unselect extremal vairables value. Selected advert must have same brand and model, production year has 2 years deviation. If we have more than 100 filtered adverts, we are using sequentially: gearbox, fuel type, vehicle type filter, until amount of adverts is above 100. Next columns powerPS, kilometr stand, production year are tranforming to boolean columns. PowerPS,  kilometr stand are deviding to ranges. Production year columns are devided for each year boolean columns. We are not in possession information about models generetions, if we take a look on price-production year chart we see stepped line, thats why we are treating this variable as categorical one. Afterwards set is devided to train and test one.
 For most accurate price estimating, prediction is made by few regression models: linear regression, lasso regression, ridge regression, AdaBoost regression,  Random Forrest regressor, K-nearest Neighbours Regression. To predict price is choosen, this one with best r^2 score.
 
-# Completing categories 
+#### Completing categories:
 Mostly website users during creating their cars selling adverts aren't filling all of avaiable features. However, they put a lot of infromations in adverts title or description e.g.: "VW_PASSAT_1.9_TDI_131_PS_LEDER", "BMW_530d_touring_Vollausstattung_NAVI", "Opel_meriva_1.6_16_v_lpg__z16xe_no_OPC". With such information and knowledge what we are searching, we can try to fill up missing values.
 Program has a static variables signed for some categories (gearbox, fuel type, model (for now only audi models)). In adverts names we are searching this static variables for missing values in columns. If found, information is assigned.
 
