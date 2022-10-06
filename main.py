@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import font
 from adv_browser import Browser
-from price_predictor import price_predictor
+from price_predictor import Price_Predictor
 
 # Create an instance of tkinter frame or window
 win = tk.Tk()
@@ -9,7 +9,7 @@ win = tk.Tk()
 """Setting main gui window"""
 win.geometry("880x680")
 win.resizable(0, 0)
-win.title("Cars Adv Scroller")
+win.title("Cars Adv Analyser")
 menubar = tk.Menu(win)
 win.config(menu=menubar)
 file_menu = tk.Menu(menubar)        
@@ -18,8 +18,8 @@ file_menu.add_command(label='About',command = help)
 
 
 """Creating objects for side windows"""
-predictor = price_predictor(win)
 browser = Browser(win)
+predictor = Price_Predictor(win)
 
 def change_to_browser():
     """switching to brower window"""

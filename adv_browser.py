@@ -1,6 +1,6 @@
-from gui_base import gui_base
+from gui_base import Gui_Base
 
-class Browser(gui_base):
+class Browser(Gui_Base):
     def prepare_gui(self):
         """preparing gui"""
         self.prepare_frames()

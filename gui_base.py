@@ -4,13 +4,13 @@ from tkcalendar import *
 from databaseorganistor import DB
 import datetime
 import matplotlib.pyplot as plt
-from model import Model_pre
+from model import Model_Pre
 from abc import ABC, abstractmethod
 
 
 from matplotlib.pyplot import grid, plot, text
 
-class gui_base(ABC):
+class Gui_Base(ABC):
     def __init__(self,win, database = "./cars_selling_mod.csv"):
         self.main_frame = tk.Frame(win)
         self.auto_DB = DB(database)
@@ -273,7 +273,7 @@ class gui_base(ABC):
         outplot  = self.chart_DF.plot.hexbin(x = 'yearOfRegistration', y = 'price', gridsize = 25 )
         plt.show()
         print("typppppppppp")
-        model = Model_pre(self.autos_DBF)
+        model = Model_Pre(self.autos_DBF)
         model.make_profile()
         print(type(self.autos_DBF))
     

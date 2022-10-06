@@ -5,15 +5,15 @@ from tkcalendar import *
 from databaseorganistor import DB
 import datetime
 import matplotlib.pyplot as plt
-from model import Model_pre
+from model import Model_Pre
 import pandas as pd
 
 from matplotlib.pyplot import grid, plot, text
-from gui_base import gui_base
+from gui_base import Gui_Base
 from tkinter import messagebox
 
 
-class price_predictor(gui_base):
+class Price_Predictor(Gui_Base):
     def prepare_gui(self):
         """preparing gui"""
         self.prepare_frames()
@@ -130,15 +130,15 @@ class price_predictor(gui_base):
                            , self.fuel_type_filter:[1], float(self.prod_year_filter):[1],"powerPS": [int(self.power_ps_filter)]
                            , 'kilometer':[int(self.km_stand_filter)], 'nein':1}
         data_to_predict = pd.DataFrame.from_dict(data_to_predict)
-        trans = Model_pre
-        Model_pre.transform_c_powerPS(trans, data_to_predict)
-        Model_pre.transform_c_kilometer(trans, data_to_predict)
+        trans = Model_Pre
+        Model_Pre.transform_c_powerPS(trans, data_to_predict)
+        Model_Pre.transform_c_kilometer(trans, data_to_predict)
         return data_to_predict.drop(columns=["powerPS","kilometer"])
 
     def make_prediction(self):
         """preparing DB and predicting car price"""
         current_dbooo = self.autos_DBF
-        self.predicton_model = Model_pre(current_dbooo)
+        self.predicton_model = Model_Pre(current_dbooo)
         self.predicton_model.prepare_datebase()
         self.predict_from_filter()
 

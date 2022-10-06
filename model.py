@@ -9,7 +9,7 @@ from sklearn.ensemble import AdaBoostRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from tkinter import messagebox
 
-class Model_pre:
+class Model_Pre:
     def __init__(self, db):
         self.db = db
     
@@ -274,7 +274,7 @@ class Model_pre:
 dbooo = "./cars_selling.csv"
 current_dbooo = pd.read_csv(dbooo, encoding='latin1')
 #current_dbooo = current_dbooo[:100000]
-test_obj = Model_pre(current_dbooo)
+test_obj = Model_Pre(current_dbooo)
 test_obj.clean_table()
 test_obj.filter()
 test_obj.transformer()
