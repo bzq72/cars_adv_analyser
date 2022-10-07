@@ -17,7 +17,7 @@ Program to browser cars adverts with option to predict car value. Main purpose o
 
 ## Installation
 
-From link below download rar package and run Cars_Adv_Analyser.exe. That's all!
+From link below download rar package and then run Cars_Adv_Analyser.exe. That's all!
 
 https://www.dropbox.com/s/4zx3h7cghwaczc3/Cars_Adv_Analyser.rar?dl=0
 
