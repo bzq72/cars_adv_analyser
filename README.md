@@ -15,7 +15,7 @@ Program to browser cars adverts with option to predict car value. Main purpose o
 - 	 scikit-learn
 - 	 tkinter
 
-## Instalation
+## Installation
 
 From link below download rar package and run Cars_Adv_Analyser.exe. That's all!
 
