@@ -3,6 +3,8 @@ from tkinter import font
 from adv_browser import Browser
 from price_predictor import Price_Predictor
 
+def help(): pass
+
 # Create an instance of tkinter frame or window
 win = tk.Tk()
 

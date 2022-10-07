@@ -1,13 +1,9 @@
 from genericpath import exists
 import tkinter as tk
-from tkinter import BOTH, E, END, HORIZONTAL, LEFT, NE, RIGHT, VERTICAL, W, Menu, ttk
+from tkinter import ttk
 from tkcalendar import *
-from databaseorganistor import DB
-import datetime
-import matplotlib.pyplot as plt
 from model import Model_Pre
 import pandas as pd
-
 from matplotlib.pyplot import grid, plot, text
 from gui_base import Gui_Base
 from tkinter import messagebox

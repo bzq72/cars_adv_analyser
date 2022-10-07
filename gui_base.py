@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from matplotlib.pyplot import grid, plot, text
 
 class Gui_Base(ABC):
-    def __init__(self,win, database = "./cars_selling_mod.csv"):
+    def __init__(self,win, database = "cars_selling_mod.csv"):
         self.main_frame = tk.Frame(win)
         self.auto_DB = DB(database)
         self.prepare_gui()
@@ -263,19 +263,22 @@ class Gui_Base(ABC):
         self.low_prod_year_filter = int(self.prod_year_low_combobox.get())
         self.high_prod_year_filter = int(self.prod_year_hi_combobox.get())
         self.date_created_low_filter = self.date_created_low_entry.get()
-        self.date_created_low_filter = datetime.datetime.strptime(str(self.date_created_low_filter),'%d.%m.%Y')
-        self.date_created_high_filter = self.date_created_hi_entry.get()        
-        self.date_created_high_filter = datetime.datetime.strptime(str(self.date_created_high_filter),'%d.%m.%Y')
+        try:
+            self.date_created_low_filter = datetime.datetime.strptime(str(self.date_created_low_filter), '%d.%m.%Y')
+        except:
+            self.date_created_low_filter = datetime.datetime.strptime(str(self.date_created_low_filter),'%m/%d/%y')
+        self.date_created_high_filter = self.date_created_hi_entry.get()  
+        try:      
+            self.date_created_high_filter = datetime.datetime.strptime(str(self.date_created_high_filter),'%d.%m.%Y')
+        except:
+            self.date_created_high_filter = datetime.datetime.strptime(str(self.date_created_high_filter),'%m/%d/%y')
 
     def make_chart(self):
         self.chart_DF = self.autos_DBF[['yearOfRegistration', 'price']]
-        print(len(self.chart_DF['price']))
         outplot  = self.chart_DF.plot.hexbin(x = 'yearOfRegistration', y = 'price', gridsize = 25 )
         plt.show()
-        print("typppppppppp")
         model = Model_Pre(self.autos_DBF)
         model.make_profile()
-        print(type(self.autos_DBF))
     
     def prepare_chart_frame(self):
         chart_frame =tk.Frame(self.main_frame)

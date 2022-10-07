@@ -1,5 +1,4 @@
 import pandas as pd
-from pandas_profiling import ProfileReport
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
@@ -15,8 +14,8 @@ class Model_Pre:
     
     def make_profile(self):
         """creating raport of DB"""
-        profile = ProfileReport(self.db)
-        profile.to_notebook_iframe()
+        #profile = ProfileReport(self.db)
+        #profile.to_notebook_iframe()
 
     def transform_c_year(self):
         """transforming column yearOfRegistration to boolean/categorical columns"""
@@ -182,7 +181,9 @@ class Model_Pre:
             self.li_r = LinearRegression().fit(self.x_train, self.y_train)
             y_pred = self.li_r.predict(self.x_test)
             r2 = r2_score(self.y_test, y_pred)
-        if  to_predict is not None: return self.li_r.predict(to_predict)
+        if  to_predict is not None: 
+            try: return self.li_r.predict(to_predict)
+            except: return [0]
         return {self.linear_regression:r2}
         
     def lasso_regression(self, skip_train = False, to_predict = None):
@@ -191,7 +192,10 @@ class Model_Pre:
             self.la_r = Lasso (normalize = True).fit(self.x_train, self.y_train)
             y_pred = self.la_r.predict(self.x_test)
             r2 = r2_score(self.y_test, y_pred)
-        if to_predict is not None: return self.la_r.predict(to_predict)
+        if to_predict is not None: 
+            try: return self.la_r.predict(to_predict)
+            except: return [0]
+
         return {self.lasso_regression:r2}
 
     def ridge_regression(self, skip_train = False, to_predict = None):
@@ -200,7 +204,9 @@ class Model_Pre:
             self.ri_r = Ridge(normalize = True).fit(self.x_train, self.y_train)
             y_pred = self.ri_r.predict(self.x_test)
             r2 = r2_score(self.y_test, y_pred)
-        if to_predict is not None: return self.ri_r.predict(to_predict)
+        if to_predict is not None: 
+            try: return self.ri_r.predict(to_predict)
+            except: return [0]
         return {self.ridge_regression:r2}
 
     def adaboost_regressor(self, skip_train = False, to_predict = None):
@@ -209,7 +215,9 @@ class Model_Pre:
             self.ab_r = AdaBoostRegressor(n_estimators =1000).fit(self.x_train, self.y_train)
             y_pred = self.ab_r.predict(self.x_test)
             r2 = r2_score(self.y_test, y_pred)
-        if to_predict is not None: return self.ab_r.predict(to_predict)
+        if to_predict is not None: 
+            try: return self.ab_r.predict(to_predict)
+            except: return [0]
         return {self.adaboost_regressor:r2}
 
     def random_forrest_regressor(self, skip_train = False, to_predict = None):
@@ -218,7 +226,9 @@ class Model_Pre:
             self.rf_r = AdaBoostRegressor(n_estimators =1000).fit(self.x_train, self.y_train)
             y_pred = self.rf_r.predict(self.x_test)
             r2 = r2_score(self.y_test, y_pred)
-        if to_predict is not None: return  self.rf_r.predict(to_predict)
+        if to_predict is not None: 
+            try: return self.rf_r.predict(to_predict)
+            except: return [0]
         return {self.random_forrest_regressor:r2}
 
     def k_neighbors_regressor(self, skip_train = False, to_predict = None):
@@ -227,7 +237,9 @@ class Model_Pre:
             self.kn_r = KNeighborsRegressor().fit(self.x_train, self.y_train)
             y_pred =  self.kn_r.predict(self.x_test)
             r2 = r2_score(self.y_test, y_pred)
-        if to_predict is not None: return  self.kn_r.predict(to_predict)
+        if to_predict is not None: 
+            try: return self.kn_r.predict(to_predict)
+            except: return [0]
         return {self.k_neighbors_regressor:r2}
     
     def check_all_models(self):
@@ -235,7 +247,6 @@ class Model_Pre:
         scores = {}
         list = [self.linear_regression(), self.adaboost_regressor(), self.lasso_regression(), self.ridge_regression(), self.random_forrest_regressor(), self.k_neighbors_regressor()] 
         for reg in list: scores.update(reg)
-        print(scores)
         return scores
 
     def choose_model(self):
