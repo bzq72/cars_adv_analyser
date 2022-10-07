@@ -15,6 +15,12 @@ Program to browser cars adverts with option to predict car value. Main purpose o
 - 	 scikit-learn
 - 	 tkinter
 
+## Instalation
+
+From link below download rar package and run Cars_Adv_Analyser.exe. That's all!
+
+https://www.dropbox.com/s/4zx3h7cghwaczc3/Cars_Adv_Analyser.rar?dl=0
+
 ## Project background:
 First idea was creating simple adverts browser based on Tkinter library. As a database was used JSON from german website with cars adverts from 2016. During cleaning and preprocessing with Pandas library, appeared thought to completed blank/Nan values using informations from advert name.  After completed this stage, project was abandoned.
 
